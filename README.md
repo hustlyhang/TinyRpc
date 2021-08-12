@@ -24,3 +24,6 @@ Knowledge:
 		https://bygeek.cn/2018/09/28/variable-arguments-in-c-c/
 	五、调用惯例
 		https://bygeek.cn/2018/09/05/what-is-calling-convention/
+	六、std::decay
+		用以移除类型中的一些特性，比如引用、常量、volatile
+		

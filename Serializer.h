@@ -108,8 +108,46 @@ public:
 	}
 
 public:
+	template<typename T>
+	void OutputType(T& t);
 
+	template<typename T>
+	void InputType(T t);
+
+	// 重载operator <<、>>
+	template <typename T>
+	CSerializer& operator<< (T t) {
+		InputType(t);
+		return *this;
+	}
+	template <typename T>
+	CSerializer& operator>> (T& t) {
+		OutputType(t);
+		return *this;
+	}
 private:
 	ByteOrder m_eByteOrder;
 	CStreamBuf m_cIoDevice;
 };
+
+template <typename T>
+inline void CSerializer::OutputType(T& _t) {
+	int tSize = sizeof T;
+	char* data = new char[tSize];
+	// 如果缓冲流中还有数据，就输出数据
+	if (!m_cIoDevice.IsEOF()) {
+		memcpy(data, m_cIoDevice.GetCurData(), tSize);
+		m_cIoDevice.Offset(tSize);
+		// 转换字节序
+		ChangeByteOrder(data, tSize);
+		// 强制类型转换
+		_t = *reinterpret_cast<T*>(&data[0]);
+	}
+	delete[] data;
+}
+
+template<typename T>
+inline void CSerializer::InputType(T t)
+{
+	// todo
+}
