@@ -61,3 +61,55 @@ public:
 private:
 	int m_iPos;		// 记录当前字节流的位置
 };
+
+
+// 序列化类
+class CSerializer {
+public:
+	// 默认字节序为小端字节序
+	CSerializer() { m_eByteOrder = ByteOrder::Little; }
+	~CSerializer() { }
+	CSerializer(CStreamBuf _dev, int _byteOrder = 1) {
+		m_eByteOrder = (ByteOrder)_byteOrder;
+		m_cIoDevice = _dev;
+	}
+public:
+	// 字节序，大端小端
+	enum class ByteOrder {
+		Big,
+		Little
+	};
+public:
+	void Reset() {
+		m_cIoDevice.Reset();
+	}
+	
+	int Size() {
+		return m_cIoDevice.size();
+	}
+
+	const char* GetData() {
+		return m_cIoDevice.GetData();
+	}
+
+	const char* GetCurData() {
+		return m_cIoDevice.GetCurData();
+	}
+	// 转换字节序
+	void ChangeByteOrder(char* _in, int _len) {
+		if (m_eByteOrder == ByteOrder::Big) {
+			reverse(_in, _in + _len);
+		}
+	}
+	// 添加数据
+	void WriteRawData(char* _in, int _len) {
+		m_cIoDevice.Input(_in, _len);
+		m_cIoDevice.Offset(_len);
+	}
+
+public:
+
+private:
+	ByteOrder m_eByteOrder;
+	CStreamBuf m_cIoDevice;
+};
