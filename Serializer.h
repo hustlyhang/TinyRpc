@@ -3,6 +3,10 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <cstdint>
+#include <utility>
+#include <tuple>
+/// #include <tuple>
 
 using namespace std;
 
@@ -41,7 +45,7 @@ public:
 
 	// 是否结束
 	bool IsEOF() {
-		return m_iPos >= size();
+		return m_iPos >= (int)size();
 	}
 
 	// 输入
@@ -108,6 +112,19 @@ public:
 	}
 
 public:
+	// 将buffer里面的内容输出到tuple中去
+	template<typename Tuple, std::size_t Id>
+	void GetV(CSerializer& _ds, Tuple& t) {
+		_ds >> std::get<Id>(t);
+	}
+
+	template<typename Tuple, std::size_t... Is>
+	Tuple GetTuple(std::index_sequence<Is...>) {
+		Tuple t;
+		initializer_list<int>{((GetV<Tuple, Is>(*this, t)), 0)...};
+		return t;
+	}
+
 	template<typename T>
 	void OutputType(T& t);
 
@@ -130,6 +147,7 @@ private:
 	CStreamBuf m_cIoDevice;
 };
 
+// 将streambuffer中的数据提取出来
 template <typename T>
 inline void CSerializer::OutputType(T& _t) {
 	int tSize = sizeof T;
@@ -145,9 +163,28 @@ inline void CSerializer::OutputType(T& _t) {
 	}
 	delete[] data;
 }
-
+// 特化
+//template<>
+//inline void CSerializer::OutputType(std::string& _in) {
+//	int marklen = sizeof(uint16_t);
+//	char* d = new char[marklen];
+//	memcpy(d, m_cIoDevice.GetCurData(), marklen);
+//	ChangeByteOrder(d, marklen);
+//	int len = *reinterpret_cast<uint16_t*>(&d[0]);
+//	m_cIoDevice.Offset(marklen);
+//	delete[] d;
+//	if (len == 0) return;
+//	_in.insert(_in.begin(), m_cIoDevice.GetCurData(), m_cIoDevice.GetCurData() + len);
+//	m_cIoDevice.Offset(len);
+//}
+// 将数据放入streambuffer中
 template<typename T>
-inline void CSerializer::InputType(T t)
-{
-	// todo
+inline void CSerializer::InputType(T t){
+	int len = sizeof T;
+	char* data = new char[len];
+	const char* p = reinterpret_cast<const char*>(&t);
+	memcpy(data, p, len);
+	ChangeByteOrder(data, len);
+	m_cIoDevice.Input(data, len);
+	delete[] data;
 }
