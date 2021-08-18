@@ -92,6 +92,11 @@ public:
 		return m_cIoDevice.size();
 	}
 
+	void Clear() {
+		m_cIoDevice.clear();
+		Reset();
+	}
+
 	const char* GetData() {
 		return m_cIoDevice.GetData();
 	}
@@ -163,20 +168,21 @@ inline void CSerializer::OutputType(T& _t) {
 	}
 	delete[] data;
 }
-// 特化
-//template<>
-//inline void CSerializer::OutputType(std::string& _in) {
-//	int marklen = sizeof(uint16_t);
-//	char* d = new char[marklen];
-//	memcpy(d, m_cIoDevice.GetCurData(), marklen);
-//	ChangeByteOrder(d, marklen);
-//	int len = *reinterpret_cast<uint16_t*>(&d[0]);
-//	m_cIoDevice.Offset(marklen);
-//	delete[] d;
-//	if (len == 0) return;
-//	_in.insert(_in.begin(), m_cIoDevice.GetCurData(), m_cIoDevice.GetCurData() + len);
-//	m_cIoDevice.Offset(len);
-//}
+ // 特化
+template<>
+inline void CSerializer::OutputType(std::string& _in) {
+	int marklen = sizeof(uint16_t);
+	char* d = new char[marklen];
+	memcpy(d, m_cIoDevice.GetCurData(), marklen);
+	ChangeByteOrder(d, marklen);
+	int len = *reinterpret_cast<uint16_t*>(&d[0]);
+	m_cIoDevice.Offset(marklen);
+	delete[] d;
+	if (len == 0) return;
+	_in.insert(_in.begin(), m_cIoDevice.GetCurData(), m_cIoDevice.GetCurData() + len);
+	m_cIoDevice.Offset(len);
+}
+
 // 将数据放入streambuffer中
 template<typename T>
 inline void CSerializer::InputType(T t){
@@ -187,4 +193,27 @@ inline void CSerializer::InputType(T t){
 	ChangeByteOrder(data, len);
 	m_cIoDevice.Input(data, len);
 	delete[] data;
+}
+
+template<>
+inline void CSerializer::InputType(std::string _in)
+{
+	// 先存入字符串长度
+	uint16_t len = _in.size();
+	char* p = reinterpret_cast<char*>(&len);
+	ChangeByteOrder(p, sizeof(uint16_t));
+	m_cIoDevice.Input(p, sizeof(uint16_t));
+
+	// 存入字符串
+	if (len == 0) return;
+	char* d = new char[len];
+	memcpy(d, _in.c_str(), len);
+	m_cIoDevice.Input(d, len);
+	delete[] d;
+}
+
+template<>
+inline void CSerializer::InputType(const char* _in)
+{
+	InputType<std::string>(std::string(_in));
 }

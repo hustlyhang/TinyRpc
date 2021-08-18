@@ -116,6 +116,8 @@ public:
 	// 收发数据
 	void Recv(zmq::message_t& _data);
 	void Send(zmq::message_t& _data);
+	// 超时
+	void SetTimeout(uint32_t _ms);
 	// 绑定服务端函数接口
 	template <typename F>
 	void Bind(std::string _funcName, F _func);
@@ -144,7 +146,12 @@ public:
 		PackageParams(s, args);
 		return NetCall<R>(s);
 	}
-
+	template <typename R>
+	CValue_t<R> Call(std::string _name) {
+		CSerializer ds;
+		ds << _name;
+		return NetCall<R>(ds);
+	}
 
 private:
 	template<typename R>
@@ -177,7 +184,6 @@ private:
 		(*pr) << val;
 	}
 
-
 private:
 	zmq::context_t m_cContext;
 	RPCERRCODE m_eErrCode;
@@ -187,8 +193,8 @@ private:
 	std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>> m_pSocket;
 };
 
-
 inline CTinyRpc::CTinyRpc() :m_cContext(1) {
+	m_eRole = RPCROLE::CLIENT;
 	m_eErrCode = RPCERRCODE::SUCCESS;
 }
 
@@ -197,7 +203,11 @@ inline CTinyRpc::~CTinyRpc() {
 }
 
 inline void CTinyRpc::AsClient(std::string _ip, int _port) {
-	// TODO
+	m_eRole = RPCROLE::CLIENT;
+	m_pSocket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_cContext, ZMQ_REQ), [](zmq::socket_t* sock) { sock->close(); delete sock; sock = nullptr; });
+	ostringstream os;
+	os << "tcp://" << _ip << ":" << _port;
+	m_pSocket->connect (os.str());
 }
 
 inline void CTinyRpc::AsServer(int _port) {
@@ -205,7 +215,7 @@ inline void CTinyRpc::AsServer(int _port) {
 	m_pSocket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_cContext, ZMQ_REP), [](zmq::socket_t* sock) { sock->close(); delete sock; sock = nullptr; });
 	ostringstream os;
 	os << "tcp://*:" << _port;
-	m_pSocket->bind(os.str());
+	m_pSocket->bind (os.str());
 }
 
 inline void CTinyRpc::Send(zmq::message_t& _data) {
@@ -214,6 +224,10 @@ inline void CTinyRpc::Send(zmq::message_t& _data) {
 
 inline void CTinyRpc::Recv(zmq::message_t& _data) {
 	m_pSocket->recv(&_data);
+}
+
+inline void CTinyRpc::SetTimeout(uint32_t _ms) {
+	if (m_eRole == RPCROLE::CLIENT) m_pSocket->setsockopt(ZMQ_RCVTIMEO, _ms);
 }
 
 // server
@@ -233,6 +247,7 @@ inline void CTinyRpc::Run() {
 
 		std::string funname;
 		ds >> funname;
+		printf("%s\n", funname.c_str());
 		CSerializer* r = _Call(funname, ds.GetCurData(), ds.Size() - funname.size());
 
 		zmq::message_t retmsg(r->Size());
@@ -264,5 +279,23 @@ inline void CTinyRpc::Callproxy(F fun, CSerializer* pr, const char* data, int le
 
 template <typename R>
 inline CTinyRpc::CValue_t<R> CTinyRpc::NetCall(CSerializer& _s) {
-	//TODO
+	zmq::message_t request(_s.Size() + 1);
+	memcpy(request.data(), _s.GetData(), _s.Size());
+	if (m_eErrCode != RPCERRCODE::TIMEOUT) Send(request);
+	zmq::message_t reply;
+	Recv(reply);
+	CValue_t<R> val;
+	if (reply.size() == 0) {
+		// timeout
+		m_eErrCode = RPCERRCODE::TIMEOUT;
+		val.SetErrorCode((int)RPCERRCODE::TIMEOUT);
+		val.SetErrorMsg("recv timeout");
+		return val;
+	}
+	m_eErrCode = RPCERRCODE::SUCCESS;
+	_s.Clear();
+	_s.WriteRawData((char*)reply.data(), reply.size());
+	_s.Reset();
+	_s >> val;
+	return val;
 }
