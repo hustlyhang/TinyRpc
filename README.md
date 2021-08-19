@@ -1,13 +1,6 @@
 # TinyRpc
 
-¼òµ¥µÄrpcÊµÏÖ£¬»ùÓÚZeroMQ  
-Ê×ÏÈÊµÏÖÐòÁÐ»¯
-
-ÐòÁÐ»¯ÐèÒª¿¼ÂÇ´«ÊäµÄÊý¾ÝÁ÷×Ö½ÚÐòÇé¿ö  
-1£® Little endian£º½«µÍÐò×Ö½Ú´æ´¢ÔÚÆðÊ¼µØÖ·  
-2£® Big endian£º½«¸ßÐò×Ö½Ú´æ´¢ÔÚÆðÊ¼µØÖ·  
-
-Ð¡¶Ë×Ö½ÚÐò±È½Ï·ûºÏÈËµÄË¼Î¬£¬ÍøÂç×Ö½ÚÐò²ÉÓÃBig endian£¬Ö÷»ú²ÉÓÃLittle endian  
-
-¹¦ÄÜ£º  
-	½«×Ö½ÚÁ÷ÖÐµÄÊý¾ÝÈ¡³öÀ´ÒÔ¼°·Å½øÈ¥  
+ç®€å•çš„rpcå®žçŽ°ï¼ŒåŸºäºŽZeroMQ  
+- ç®€å•æ˜“ç”¨
+- æœåŠ¡ç«¯ç›®å‰å¯ä»¥ç»‘å®šè‡ªç”±å‡½æ•°
+- æœåŠ¡ç«¯å‡½æ•°å‚æ•°å¯ä»¥æ˜¯ä»»æ„ç±»åž‹ä»»æ„æ•°é‡
