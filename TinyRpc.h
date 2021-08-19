@@ -244,12 +244,9 @@ inline void CTinyRpc::Run() {
 		Recv(data);
 		CStreamBuf iodev((char*)data.data(), data.size());
 		CSerializer ds(iodev);
-
 		std::string funname;
 		ds >> funname;
-		printf("%s\n", funname.c_str());
 		CSerializer* r = _Call(funname, ds.GetCurData(), ds.Size() - funname.size());
-
 		zmq::message_t retmsg(r->Size());
 		memcpy(retmsg.data(), r->GetData(), r->Size());
 		Send(retmsg);
