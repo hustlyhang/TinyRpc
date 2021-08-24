@@ -123,6 +123,7 @@ public:
 		_ds >> std::get<Id>(t);
 	}
 
+	// ¹¹½¨tuple
 	template<typename Tuple, std::size_t... Is>
 	Tuple GetTuple(std::index_sequence<Is...>) {
 		Tuple t;

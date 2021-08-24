@@ -140,7 +140,7 @@ public:
 	CValue_t<R> Call(std::string _name, Params... _ps) {
 		using args_type = std::tuple<typename std::decay<Params>::type...>;
 		args_type args = std::make_tuple(_ps);
-		// 将函数名和参数序列化后传给远端
+		// 将函数名和参数序列化后传给远端调用
 		CSerializer s;
 		s << _name;
 		PackageParams(s, args);
@@ -204,7 +204,12 @@ inline CTinyRpc::~CTinyRpc() {
 
 inline void CTinyRpc::AsClient(std::string _ip, int _port) {
 	m_eRole = RPCROLE::CLIENT;
-	m_pSocket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_cContext, ZMQ_REQ), [](zmq::socket_t* sock) { sock->close(); delete sock; sock = nullptr; });
+	auto deleterLambda = [](zmq::socket_t* sock) {
+		sock->close();
+		delete sock;
+		sock = nullptr;
+	};
+	m_pSocket = std::unique_ptr<zmq::socket_t, decltype(deleterLambda)>(new zmq::socket_t(m_cContext, ZMQ_REQ), deleterLambda);
 	ostringstream os;
 	os << "tcp://" << _ip << ":" << _port;
 	m_pSocket->connect (os.str());
@@ -212,7 +217,12 @@ inline void CTinyRpc::AsClient(std::string _ip, int _port) {
 
 inline void CTinyRpc::AsServer(int _port) {
 	m_eRole = RPCROLE::SERVER;
-	m_pSocket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_cContext, ZMQ_REP), [](zmq::socket_t* sock) { sock->close(); delete sock; sock = nullptr; });
+	auto deleterLambda = [](zmq::socket_t* sock) {
+		sock->close();
+		delete sock;
+		sock = nullptr;
+	};
+	m_pSocket = std::unique_ptr<zmq::socket_t, decltype(deleterLambda)>(new zmq::socket_t(m_cContext, ZMQ_REP), deleterLambda);
 	ostringstream os;
 	os << "tcp://*:" << _port;
 	m_pSocket->bind (os.str());
@@ -254,8 +264,7 @@ inline void CTinyRpc::Run() {
 	}
 }
 
-inline CSerializer* CTinyRpc::_Call(std::string _name, const char* _data, int _len)
-{
+inline CSerializer* CTinyRpc::_Call(std::string _name, const char* _data, int _len) {
 	CSerializer* ds = new CSerializer();
 	if (m_mHandler.find(_name) == m_mHandler.end()) {
 		(*ds) << (int)RPCERRCODE::NOTBIND;
@@ -269,8 +278,7 @@ inline CSerializer* CTinyRpc::_Call(std::string _name, const char* _data, int _l
 }
 
 template<typename F>
-inline void CTinyRpc::Callproxy(F fun, CSerializer* pr, const char* data, int len)
-{
+inline void CTinyRpc::Callproxy(F fun, CSerializer* pr, const char* data, int len) {
 	_Callproxy(fun, pr, data, len);
 }
 
