@@ -6,11 +6,8 @@
 #include <cstdint>
 #include <utility>
 #include <tuple>
-/// #include <tuple>
 
 using namespace std;
-
-// 利用vector来实现字节流处理
 
 class CStreamBuf : public vector<char> {
 public:
@@ -57,9 +54,7 @@ public:
 	int FindChar(char _c) {
 		iterator itr = find(begin() + m_iPos, end(), _c);
 		if (itr != end())
-		{
 			return itr - (begin() + m_iPos);
-		}
 		return -1;
 	}
 private:
