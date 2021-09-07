@@ -1,5 +1,5 @@
 #pragma once
-#include "./depends/include/zmq.hpp"
+#include "demo/depends/include/zmq.h"
 #include "Serializer.h"
 #include <map>
 #include <functional>
@@ -121,6 +121,9 @@ public:
 	// 绑定服务端函数接口
 	template <typename F>
 	void Bind(std::string _funcName, F _func);
+	template <typename F, typename S>
+	void Bind(std::string _funcName, F _func, S* _s);
+
 
 	void Run();
 public:
@@ -143,6 +146,7 @@ public:
 		// 将函数名和参数序列化后传给远端调用
 		CSerializer s;
 		s << _name;
+		// 将参数打包
 		PackageParams(s, args);
 		return NetCall<R>(s);
 	}
@@ -160,7 +164,15 @@ private:
 	CSerializer* _Call(std::string _name, const char* _data, int _len);
 
 	template<typename F>
-	void Callproxy(F fun, CSerializer* pr, const char* data, int len);
+	void Callproxy(F fun, CSerializer* pr, const char* data, int len) {
+		_Callproxy(fun, pr, data, len);
+	}
+
+	template<typename F, typename S>
+	void Callproxy(F _fun, S* _s, CSerializer* _pr, const char* _data, int _len) {
+		_Callproxy(_fun, _s, _pr, _data, _len);
+	}
+
 
 	template<typename R, typename... Params>
 	void _Callproxy(R(*func)(Params...), CSerializer* pr, const char* data, int len) {
@@ -168,21 +180,12 @@ private:
 	}
 
 	template<typename R, typename... Params>
-	void _Callproxy(std::function<R(Params... ps)> func, CSerializer* pr, const char* data, int len) {
+	void _Callproxy(std::function<R(Params... ps)> func, CSerializer* pr, const char* data, int len);
 
-		using args_type = std::tuple<typename std::decay<Params>::type...>;
+	template<typename R, typename C, typename S, typename... Params>
+	void _Callproxy(R(C::*func)(Params... ps), S* s, CSerializer* pr, const char* data, int len);
 
-		CSerializer ds(CStreamBuf(data, len));
-		constexpr auto N = std::tuple_size<typename std::decay<args_type>::type>::value;
-		args_type args = ds.GetTuple < args_type >(std::make_index_sequence<N>{});
 
-		typename SType_xx<R>::type r = CallHelper<R>(func, args);
-
-		CValue_t<R> val;
-		val.SetErrorCode((int)RPCERRCODE::SUCCESS);
-		val.SetVal(r);
-		(*pr) << val;
-	}
 
 private:
 	zmq::context_t m_cContext;
@@ -246,6 +249,54 @@ inline void CTinyRpc::Bind(std::string _funcName, F _func) {
 	m_mHandler[_funcName] = std::bind(&CTinyRpc::Callproxy<F>, this, _func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 }
 
+template <typename F, typename S>
+inline void CTinyRpc::Bind(std::string _funcName, F _func, S* _s) {
+	m_mHandler[_funcName] = std::bind(&CTinyRpc::Callproxy<F, S>, this, _func, _s, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+}
+
+
+// 函数指针
+template<typename R, typename... Params>
+void CTinyRpc::_Callproxy(std::function<R(Params... ps)> func, CSerializer* pr, const char* data, int len) {
+
+	using args_type = std::tuple<typename std::decay<Params>::type...>;
+
+	CSerializer ds(CStreamBuf(data, len));
+	constexpr auto N = std::tuple_size<typename std::decay<args_type>::type>::value;
+	args_type args = ds.GetTuple < args_type >(std::make_index_sequence<N>{});
+
+	typename SType_xx<R>::type r = CallHelper<R>(func, args);
+
+	CValue_t<R> val;
+	val.SetErrorCode((int)RPCERRCODE::SUCCESS);
+	val.SetVal(r);
+	(*pr) << val;
+}
+
+// 类成员函数
+template<typename R, typename C, typename S, typename... Params>
+void CTinyRpc::_Callproxy(R(C::*func)(Params... ps), S* s, CSerializer* pr, const char* data, int len) {
+	using args_type = std::tuple<typename std::decay<Params>::type...>;
+
+	CSerializer ds(CStreamBuf(data, len));
+
+	constexpr auto N = std::tuple_size<typename std::decay<args_type>::type>::value;
+
+	args_type args = ds.GetTuple<args_type>(std::make_index_sequence<N>{});
+
+	auto ff = [=](Params..ps) {
+		return(s->*func)(ps...);
+	};
+
+	// 告诉编译器后面跟着的是一个类型而不是变量
+	typename SType_xx<R>::type r = CallHelper<R>(ff, args);
+
+	CValue_t<R> val;
+	val.SetErrorCode((int)RPCERRCODE::SUCCESS);
+	val.SetVal(r);
+	(*pr) << val;
+}
+
 // 不断地接收数据，然后转换成初始化CSerializer类
 inline void CTinyRpc::Run() {
 	if (m_eRole != RPCROLE::SERVER) return;
@@ -275,11 +326,6 @@ inline CSerializer* CTinyRpc::_Call(std::string _name, const char* _data, int _l
 	fun(ds, _data, _len);
 	ds->Reset();
 	return ds;
-}
-
-template<typename F>
-inline void CTinyRpc::Callproxy(F fun, CSerializer* pr, const char* data, int len) {
-	_Callproxy(fun, pr, data, len);
 }
 
 template <typename R>
