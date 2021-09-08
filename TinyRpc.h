@@ -1,10 +1,11 @@
 #pragma once
-#include "demo/depends/include/zmq.h"
+
 #include "Serializer.h"
 #include <map>
 #include <functional>
 #include <sstream>
 #include <memory>
+#include <zmq.hpp>
 
 class CSerializer;
 
@@ -142,7 +143,7 @@ public:
 	template <typename R, typename... Params>
 	CValue_t<R> Call(std::string _name, Params... _ps) {
 		using args_type = std::tuple<typename std::decay<Params>::type...>;
-		args_type args = std::make_tuple(_ps);
+		args_type args = std::make_tuple(_ps...);
 		// 将函数名和参数序列化后传给远端调用
 		CSerializer s;
 		s << _name;
@@ -284,7 +285,7 @@ void CTinyRpc::_Callproxy(R(C::*func)(Params... ps), S* s, CSerializer* pr, cons
 
 	args_type args = ds.GetTuple<args_type>(std::make_index_sequence<N>{});
 
-	auto ff = [=](Params..ps) {
+	auto ff = [=](Params... ps) {
 		return(s->*func)(ps...);
 	};
 

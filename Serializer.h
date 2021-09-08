@@ -157,8 +157,6 @@ inline void CSerializer::OutputType(T& _t) {
 	if (!m_cIoDevice.IsEOF()) {
 		memcpy(data, m_cIoDevice.GetCurData(), tSize);
 		m_cIoDevice.Offset(tSize);
-		// 转换字节序
-		ChangeByteOrder(data, tSize);
 		// 强制类型转换
 		_t = *reinterpret_cast<T*>(&data[0]);
 	}
@@ -170,7 +168,6 @@ inline void CSerializer::OutputType(std::string& _in) {
 	int marklen = sizeof(uint16_t);
 	char* d = new char[marklen];
 	memcpy(d, m_cIoDevice.GetCurData(), marklen);
-	ChangeByteOrder(d, marklen);
 	int len = *reinterpret_cast<uint16_t*>(&d[0]);
 	m_cIoDevice.Offset(marklen);
 	delete[] d;
@@ -186,7 +183,6 @@ inline void CSerializer::InputType(T t){
 	char* data = new char[len];
 	const char* p = reinterpret_cast<const char*>(&t);
 	memcpy(data, p, len);
-	ChangeByteOrder(data, len);
 	m_cIoDevice.Input(data, len);
 	delete[] data;
 }
@@ -197,7 +193,6 @@ inline void CSerializer::InputType(std::string _in)
 	// 先存入字符串长度
 	uint16_t len = _in.size();
 	char* p = reinterpret_cast<char*>(&len);
-	ChangeByteOrder(p, sizeof(uint16_t));
 	m_cIoDevice.Input(p, sizeof(uint16_t));
 
 	// 存入字符串
