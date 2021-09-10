@@ -28,7 +28,7 @@ int foo_3(int arg1) {
 
 int foo_4(int arg1, std::string arg2, int arg3, float arg4) {
 	buttont_assert(arg1 == 10);
-	buttont_assert(arg2 == "buttonrpc");
+	buttont_assert(arg2 == "TinyRpc");
 	buttont_assert(arg3 == 100);
 	buttont_assert((arg4 > 10.0) && (arg4 < 11.0));
 	return arg1 * arg3;
@@ -39,7 +39,7 @@ class ClassMem
 public:
 	int bar(int arg1, std::string arg2, int arg3) {
 		buttont_assert(arg1 == 10);
-		buttont_assert(arg2 == "buttonrpc");
+		buttont_assert(arg2 == "TinyRpc");
 		buttont_assert(arg3 == 100);
 		return arg1 * arg3;
 	}
@@ -65,7 +65,7 @@ struct PersonInfo
 PersonInfo foo_5(PersonInfo d, int weigth)
 {
 	buttont_assert(d.age == 10);
-	buttont_assert(d.name == "buttonrpc");
+	buttont_assert(d.name == "TinyRpc");
 	buttont_assert(d.height == 170);
 
 	PersonInfo ret;
