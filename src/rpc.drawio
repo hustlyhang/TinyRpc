@@ -1,0 +1,101 @@
+<mxfile host="65bd71144e">
+    <diagram id="lv1u3Ho3QG9lX0hCI1QJ" name="第 1 页">
+        <mxGraphModel dx="1417" dy="2116" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#030303" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;" parent="1" source="2" target="4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Bind" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="5" vertex="1" connectable="0">
+                    <mxGeometry x="-0.3334" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontColor=#000000;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="2" target="12" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="650" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="Run" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#FFFFFF;" parent="11" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2363" y="-4" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="2" value="Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffff88;strokeColor=#36393d;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="100" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;div&gt;int foo_3(int arg1) {&lt;/div&gt;&lt;div&gt;&lt;span&gt;&#9;&lt;/span&gt;buttont_assert(arg1 == 10);&lt;/div&gt;&lt;div&gt;&lt;span&gt;&#9;&lt;/span&gt;return arg1 * arg1;&lt;/div&gt;&lt;div&gt;}&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="90" width="160" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;br&gt;建立函数名和CTinyRpc类中函数调用代理function的映射，将此函数以参数的形式传给function。因为函数代理Callproxy要call这个func的话，需要此函数的参数，所以还需要三个占位符，等后面调用的时候将参数解析出来，再调用func" style="text;html=1;strokeColor=#36393d;fillColor=#cce5ff;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=left;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="-40" width="190" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontColor=#FFFFFF;" parent="1" source="12" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="_Call" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#FFFFFF;" parent="15" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2445" y="2" relative="1" as="geometry">
+                        <mxPoint x="-16" y="-12" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" value="&lt;ol&gt;&lt;li&gt;&lt;font&gt;通过ZeroMQ监听端口发来的数据；&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;font&gt;收到数据后，初始化序列化类CSerializer ds；&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;font&gt;从ds中取出调用的函数名称；然后调用之前绑定的function对象，返回值为CSerializer r；&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;font&gt;然后将这个r中的数据copy到message_t中，发送给调用方；&lt;/font&gt;&lt;/li&gt;&lt;/ol&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontColor=#FFFFFF;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="300" width="270" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontColor=#FFFFFF;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="14" target="20" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="220" y="610" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="305" y="560"/>
+                            <mxPoint x="240" y="560"/>
+                            <mxPoint x="240" y="670"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="19" value="callproxy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#FFFFFF;" parent="17" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2907" y="1" relative="1" as="geometry">
+                        <mxPoint x="3" y="-16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="_callproxy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#FFFFFF;" parent="17" vertex="1" connectable="0">
+                    <mxGeometry x="0.1864" y="5" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="&lt;ol&gt;&lt;li&gt;先判断调用的函数是否在服务端已经绑定&lt;/li&gt;&lt;li&gt;没有绑定：将错误码和错误信息传入到CSerializer ds中，然后返回ds&lt;/li&gt;&lt;li&gt;绑定了，就将ds，客户端发过来的消息，消息长度，作为参数传给绑定在此函数名上的function对象，然后返回ds&lt;/li&gt;&lt;/ol&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontColor=#FFFFFF;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="310" width="270" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="20" target="24">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="530" y="720" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="25" value="CallHelper" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="23">
+                    <mxGeometry x="-0.228" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" value="&lt;ol&gt;&lt;li&gt;首先根据传入的函数指针，获取此函数的形参类型，并用tuple保存；在这个过程中就将参数的类型进行退化；因为调用方只是将参数的值传过来的，所以这边需要对参数进行退化，只需要将参数数据从ds中读出来就好，避免读出数据错误。&lt;/li&gt;&lt;li&gt;然后从传进来的ds中读取调用方的参数值，将函数func和参数值传递给CallHelper处理。这儿需要CallHelper函数是因为当调用函数的返回值是空的情况下，需要特判。&lt;/li&gt;&lt;li&gt;收到返回值后，将其塞到结果信息类CValue_t类中，然后序列化到ds中。因为ds是传的指针，所以上一层调用直接就可以从ds中获取到调用的结果&lt;/li&gt;&lt;/ol&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontColor=#FFFFFF;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="670" width="400" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="&lt;br&gt;这儿为什么不直接将服务端的函数直接绑定到函数名称上，而是绑定一个成员函数来调用；&lt;br&gt;如果这样的话，服务端每个函数bind都需要单独处理，因为参数个数不同，而且如果参数特别多，那么占位符也可能不够用。" style="text;html=1;strokeColor=#36393d;fillColor=#cce5ff;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=left;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry y="500" width="210" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;ol&gt;&lt;li&gt;根据调用函数返回值是否是void选择合适的函数调用。&lt;/li&gt;&lt;li&gt;将调用的函数返回值返回给_callproxy，如果为void就返回0；&lt;/li&gt;&lt;/ol&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontColor=#FFFFFF;" vertex="1" parent="1">
+                    <mxGeometry x="470" y="560" width="340" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="12">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="800" y="390" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="800" y="340"/>
+                            <mxPoint x="930" y="340"/>
+                            <mxPoint x="930" y="420"/>
+                            <mxPoint x="800" y="420"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -10,4 +10,5 @@
   - demo中提供了一些例子。
 
 - 流程
-  ![flow](https://github.com/hustlyhang/TinyRpc/blob/master/src/rpc.png)
+	- 服务端流程
+		![flow](https://github.com/hustlyhang/TinyRpc/blob/master/src/Server.png)

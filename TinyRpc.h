@@ -245,11 +245,13 @@ inline void CTinyRpc::SetTimeout(uint32_t _ms) {
 }
 
 // server
+// 绑定函数，因为这儿绑定的是类的成员函数，所以需要传入this指针。
 template <typename F>
 inline void CTinyRpc::Bind(std::string _funcName, F _func) {
 	m_mHandler[_funcName] = std::bind(&CTinyRpc::Callproxy<F>, this, _func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 }
 
+// 绑定类成员函数
 template <typename F, typename S>
 inline void CTinyRpc::Bind(std::string _funcName, F _func, S* _s) {
 	m_mHandler[_funcName] = std::bind(&CTinyRpc::Callproxy<F, S>, this, _func, _s, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);

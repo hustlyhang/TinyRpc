@@ -62,6 +62,13 @@ int main()
 		buttont_assert(dd.name == "TinyRpc is good");
 		buttont_assert(dd.height == 180);
 
+		// 调用类成员函数
+		int foo6r = client.Call<int>("foo_6", 10, "buttonrpc", 100).GetVal();
+		buttont_assert(foo6r == 1000);
+
+		CTinyRpc::CValue_t<void> xx = client.Call<void>("foo_7", 666);
+		buttont_assert(!xx.IsValid());
+
 #ifdef _WIN32
 		Sleep(1000);
 #else
